@@ -23,6 +23,7 @@ const D = {
 	y: 200,
 };
 
+let angle = 0;
 const mouse = {
 	x: 0,
 	y: 0,
@@ -36,10 +37,10 @@ animate();
 
 function animate() {
 	const radius = 50;
-	A.x = mouse.x;
-	A.y = mouse.y - radius;
-	B.x = mouse.x;
-	B.y = mouse.y + radius;
+	A.x = mouse.x + Math.cos(angle) * radius;
+	A.y = mouse.y - Math.sin(angle) * radius;
+	B.x = mouse.x - Math.cos(angle) * radius;
+	B.y = mouse.y + Math.sin(angle) * radius;
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.beginPath();
@@ -56,6 +57,7 @@ function animate() {
 
 	const I = getSegmentIntersection(A, B, C, D);
 	if (I) draw(I, 'I');
+	angle += 0.02;
 	requestAnimationFrame(animate);
 }
 
@@ -81,7 +83,8 @@ function getSegmentIntersection(A, B, C, D) {
 	const bottom = (D.y - C.y) * (B.x - A.x) - (D.x - C.x) * (B.y - A.y);
 	if (bottom === 0) return null;
 	const t = top / bottom;
-	if (t > 1 || t < 0) return null;
+	const u = (A.x - C.x + (B.x - A.x) * t) / (D.x - C.x);
+	if (t > 1 || t < 0 || u > 1 || u < 0) return null;
 	return {
 		x: lerp(A.x, B.x, t),
 		y: lerp(A.y, B.y, t),
@@ -97,4 +100,7 @@ Ax - Cx + ((Bx - Ax) * t) === ((Dx - Cx) * u)
 (Dx - Cx)(Ay - Cy) - (Dy - Cy)(Ax - Cx) === (Dy - Cy)(Bx - Ax)(t) - (Dx - Cx)(By - Ay)(t) 
 (Dx - Cx)(Ay - Cy) - (Dy - Cy)(Ax - Cx) === (t)((Dy - Cy)(Bx - Ax) - (Dx - Cx)(By - Ay))
 t = ((Dx - Cx)(Ay - Cy) - (Dy - Cy)(Ax - Cx))/((Dy - Cy)(Bx - Ax) - (Dx - Cx)(By - Ay))
+
+Ax - Cx + ((Bx - Ax) * t) === ((Dx - Cx) * u)
+u = (Ax - Cx + ((Bx - Ax) * t))/(Dx - Cx)
 */
